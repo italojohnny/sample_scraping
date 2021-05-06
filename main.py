@@ -39,20 +39,26 @@ def test_mongodb():
     logging.info('encerra teste mongodb')
 
 
+def test_selenium():
+    logging.info('inicia teste selenium')
+    browser = Remote(
+        command_executor='http://firefox:4444/wd/hub',
+        desired_capabilities={
+            'browserName':'firefox'
+        }
+    )
+    browser.get('http://google.com')
+    browser.save_screenshot('/tmp/teste.png')
+    browser.quit()
+    logging.info('encerra teste selenium')
+
+
 def main():
     time.sleep(5)
     try:
         logging.info('iniciando aplicacao')
         test_mongodb()
-        browser = Remote(
-            command_executor='http://firefox:4444/wd/hub',
-            desired_capabilities={
-                'browserName':'firefox'
-            }
-        )
-        browser.get('http://google.com')
-        browser.save_screenshot('/tmp/teste.png')
-        browser.quit()
+        test_selenium()
 
     except:
         logging.exception("Uma falha inesperada ocorreu")
