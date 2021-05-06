@@ -3,10 +3,31 @@
 import logging
 from selenium.webdriver import Remote
 import pymongo
+import pika
 import os
 import time
 
 logging.basicConfig(level=logging.DEBUG)
+def callback_rabbitmq(ch, method, properties, body):
+    logging.info(body)
+    test_mongodb()
+    test_selenium()
+
+
+def test_receiver_rabbitmq():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='hello')
+    channel.basic_consume(
+        queue='hello',
+        auto_ack=True,
+        on_message_callback=callback_rabbitmq
+    )
+    logging.info('esperando na fila por mensagem.')
+    channel.start_consuming()
+
+
 def test_mongodb():
     logging.info('inicia teste mongodb')
 
@@ -57,8 +78,9 @@ def main():
     time.sleep(5)
     try:
         logging.info('iniciando aplicacao')
-        test_mongodb()
-        test_selenium()
+        while True:
+            time.sleep(5)
+            test_receiver_rabbitmq()
 
     except:
         logging.exception("Uma falha inesperada ocorreu")

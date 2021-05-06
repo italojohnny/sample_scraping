@@ -1,3 +1,4 @@
+pika==1.2.0
 pymongo==3.11.4
 selenium==3.141.0
 urllib3==1.26.4
