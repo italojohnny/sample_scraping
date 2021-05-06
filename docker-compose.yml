@@ -56,9 +56,9 @@ services:
         env_file:
             - mongodb.env
         volumes:
-            - "./botapp/main.py:/main.py"
-            - "/tmp:/tmp"
-        command: ["python3", "/main.py"]
+            - "./botapp:/app"
+        working_dir: /app
+        command: ["python3", "main.py"]
 
 networks:
     grid:

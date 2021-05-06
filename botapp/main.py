@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 import logging
-from selenium.webdriver import Remote
+import cpf_validator as CPF
 import pymongo
 import pika
 import os
 import time
 
-logging.basicConfig(level=logging.DEBUG)
-def callback_rabbitmq(ch, method, properties, body):
-    logging.info(body)
-    test_mongodb()
-    test_selenium()
+logging.basicConfig(level=logging.ERROR)
+
+def callback_rabbitmq(ch, method, properties, cpf):
+    if CPF.is_valid(cpf):
+        logging.error(f'{cpf}:valid!')
+    else:
+        logging.error(f'{cpf}: invalid!')
 
 
 def test_receiver_rabbitmq():
@@ -58,20 +60,6 @@ def test_mongodb():
         logging.info(item)
 
     logging.info('encerra teste mongodb')
-
-
-def test_selenium():
-    logging.info('inicia teste selenium')
-    browser = Remote(
-        command_executor='http://firefox:4444/wd/hub',
-        desired_capabilities={
-            'browserName':'firefox'
-        }
-    )
-    browser.get('http://google.com')
-    browser.save_screenshot('/tmp/teste.png')
-    browser.quit()
-    logging.info('encerra teste selenium')
 
 
 def main():
