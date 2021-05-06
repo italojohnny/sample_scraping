@@ -2,6 +2,8 @@ version: "3.8"
 services:
     rabbitmq:
         image: rabbitmq:3.6-management
+        container_name: rabbitmq
+        hostname: rabbitmq
         ports:
             - "5672:5672"
             - "15672:15672"
@@ -27,6 +29,19 @@ services:
         networks:
             - grid
 
+    publisherapp:
+        image: publisherapp
+        build:
+            context: ./publisherapp
+            dockerfile: Dockerfile
+        depends_on:
+            - rabbitmq
+        networks:
+            - grid
+        command: ["python3", "/main.py"]
+        volumes:
+            - "./publisherapp/main.py:/main.py"
+
     botapp:
         image: botapp
         build:
@@ -35,6 +50,7 @@ services:
         depends_on:
             - selenium
             - mongodb
+            - publisherapp
         networks:
             - grid
         env_file:
