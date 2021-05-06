@@ -45,7 +45,7 @@ services:
     botapp:
         image: botapp
         build:
-            context: .
+            context: ./botapp
             dockerfile: Dockerfile
         depends_on:
             - selenium
@@ -56,7 +56,7 @@ services:
         env_file:
             - mongodb.env
         volumes:
-            - "./main.py:/main.py"
+            - "./botapp/main.py:/main.py"
             - "/tmp:/tmp"
         command: ["python3", "/main.py"]
 
