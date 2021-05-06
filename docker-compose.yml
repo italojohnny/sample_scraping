@@ -1,5 +1,16 @@
 version: "3.8"
 services:
+    mongodb:
+        image: mongo:3.6.23
+        container_name: mongodb
+        hostname: mongodb
+        ports:
+            - "27017:27017"
+        networks:
+            - grid
+        env_file:
+            - mongodb.env
+
     selenium:
         image: selenium/standalone-firefox
         container_name: firefox
@@ -15,8 +26,11 @@ services:
             dockerfile: Dockerfile
         depends_on:
             - selenium
+            - mongodb
         networks:
             - grid
+        env_file:
+            - mongodb.env
         volumes:
             - "./main.py:/main.py"
             - "/tmp:/tmp"
@@ -24,3 +38,4 @@ services:
 
 networks:
     grid:
+        driver: bridge
