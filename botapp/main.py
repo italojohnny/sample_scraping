@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 import logging
-import cpf_validator as CPF
-import pymongo
 import pika
-import os
 import time
+
+import cpf_validator as CPF
+import database as DB
 
 logging.basicConfig(level=logging.ERROR)
 
 def callback_rabbitmq(ch, method, properties, cpf):
-    if CPF.is_valid(cpf):
-        logging.error(f'{cpf}:valid!')
-    else:
-        logging.error(f'{cpf}: invalid!')
+    result = CPF.is_valid(cpf)
+    DB.record(cpf, result)
+    logging.error(f'{cpf}: {result}')
 
 
 def test_receiver_rabbitmq():
@@ -30,36 +29,6 @@ def test_receiver_rabbitmq():
     channel.start_consuming()
 
 
-def test_mongodb():
-    logging.info('inicia teste mongodb')
-
-    user_name = os.getenv('MONGO_INITDB_ROOT_USERNAME')
-    user_passwd = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
-    db_name = os.getenv('MONGO_INITDB_DATABASE')
-    db_address='mongodb'
-    db_port='27017'
-
-    logging.info('conexao com mongodb')
-    uri =  f'mongodb://{user_name}:{user_passwd}@{db_address}:{db_port}'
-    logging.info(uri)
-    client = pymongo.MongoClient(uri)
-    db = client['italo']
-    collection = db['collection']
-
-    logging.info('criacao de dados')
-    data = [
-        { "name": "John", "address": "Highway 37" },
-        { "name": "Adam", "address": "Highway 37" },
-    ]
-    x = collection.insert_many(data)
-    logging.info(x)
-
-    logging.info('recuperacao de dados')
-    query = collection.find({}, {'name': 1})
-    for item in query:
-        logging.info(item)
-
-    logging.info('encerra teste mongodb')
 
 
 def main():
