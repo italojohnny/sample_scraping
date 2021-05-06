@@ -1,5 +1,13 @@
 version: "3.8"
 services:
+    rabbitmq:
+        image: rabbitmq:3.6-management
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        networks:
+            - grid
+
     mongodb:
         image: mongo:3.6.23
         container_name: mongodb
