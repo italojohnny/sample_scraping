@@ -41,7 +41,7 @@ services:
             - grid
         env_file:
             - mongodb.env
-        command: ["python3", "/main.py"]
+        command: ["python3", "-B", "main.py"]
         volumes:
             - "./publisherapp/main.py:/main.py"
 
@@ -61,7 +61,7 @@ services:
         volumes:
             - "./botapp:/app"
         working_dir: /app
-        command: ["python3", "main.py"]
+        command: ["python3", "-B", "main.py"]
 
 networks:
     grid:
