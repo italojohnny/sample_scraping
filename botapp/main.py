@@ -4,13 +4,14 @@ import logging
 import pika
 import time
 
-import cpf_validator as CPF
+import cpf_validator
 import database as DB
 
 logging.basicConfig(level=logging.ERROR)
 
 def callback_rabbitmq(ch, method, properties, cpf):
-    result = CPF.is_valid(cpf)
+    validator = cpf_validator.ValidatorA()
+    result = validator.verify(cpf)
     DB.record(cpf, result)
     logging.error(f'{cpf}: {result}')
 
