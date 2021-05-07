@@ -71,4 +71,26 @@ class SiteA(Site):
 
 class SiteB(Site):
     def verify(self, cpf) -> bool:
-        return False
+        output = 'invalido'
+        try:
+            browser = self.get_browser()
+            browser.get('https://validadordecpf.clevert.com.br/v-cpf.php')
+
+            input_text = browser.find_element_by_xpath('//*[@id="cpf"]')
+            input_text.send_keys(str(cpf))
+
+            time.sleep(3)
+
+            submit_btn = browser.find_element_by_xpath('//*[@id="gerar"]')
+            submit_btn.click()
+
+            output = browser.find_element_by_xpath('//*[@id="resposta1"]').text
+            if not output:
+                output = browser.find_element_by_xpath('//*[@id="resposta2"]').text
+
+            browser.quit()
+
+        except:
+            logging.exception('erro inesperado')
+
+        return self.is_valid(output)

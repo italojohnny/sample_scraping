@@ -10,7 +10,15 @@ from database import Database
 logging.basicConfig(level=logging.ERROR)
 
 def callback_rabbitmq(ch, method, properties, cpf):
-    validator = cpf_validator.ValidatorA()
+    """
+    Permite escalar facilmente novos metodos de validacao de cpf em novos sites.
+    Assim como, alternar entre os metodos dependendo da regra de negocio
+    """
+    if False:
+        validator = cpf_validator.ValidatorA()
+    else:
+        validator = cpf_validator.ValidatorB()
+
     result = validator.verify(cpf)
     db = Database()
     db.record(cpf, result)
