@@ -7,7 +7,7 @@ import time
 import cpf_validator
 from database import Database
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 
 def callback_rabbitmq(ch, method, properties, cpf):
     """
@@ -22,7 +22,7 @@ def callback_rabbitmq(ch, method, properties, cpf):
     result = validator.verify(cpf)
     db = Database()
     db.record(cpf, result)
-    logging.error(f'{cpf}: {result}')
+    logging.info(f'{cpf}: {result}')
 
 
 def test_receiver_rabbitmq():

@@ -6,7 +6,7 @@ import logging
 import time
 import re
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 
 class Site(ABC):
     def get_browser(self):

@@ -4,7 +4,7 @@ import logging
 import pymongo
 import os
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 
 
 class SingletonMeta(type):
@@ -36,3 +36,4 @@ class Database(metaclass=SingletonMeta):
             "cpf": cpf,
             "result": result,
         })
+        logging.info(f'CPF: "{cpf}" Result: "{result}"; Gravado no Banco!')

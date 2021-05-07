@@ -8,7 +8,7 @@ import random
 import string
 import os
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 
 def get_number():
     return ''.join(random.choice(string.digits) for i in range(11))
@@ -27,7 +27,7 @@ def get_collection():
 def find(number):
     collection = get_collection()
     result = [str(i['cpf'], 'utf-8')for i in collection.find({},{ "_id": 0, "cpf": 1 })]
-    logging.error(result)
+    logging.info(f'CPFs do banco: {result}')
     if number in result:
         return True
     return False
@@ -35,7 +35,6 @@ def find(number):
 
 def test_send_message(number):
     try:
-        logging.error('inicia envio de mensagem')
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
         channel = connection.channel()
 
@@ -46,9 +45,8 @@ def test_send_message(number):
             body=number
         )
         connection.close()
-        logging.error('encerra envio de mensagem')
     except:
-        logging.exception("Uma falha inesperada ocorreu")
+        logging.exception("Falha ao tentar se conectar a fila de mensagem")
 
 def main():
     time.sleep(5)
@@ -56,11 +54,13 @@ def main():
         logging.info('iniciando aplicacao')
         while True:
             number = get_number()
+
             if not find(number):
-                logging.error('NENHUM CPF ENCONTRADO')
                 test_send_message(number)
+
             else:
-                logging.error('CPF ENCONTRADO')
+                logging.info('CPF ja verificado')
+
             time.sleep(10)
 
     except:
