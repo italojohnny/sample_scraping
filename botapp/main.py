@@ -5,14 +5,15 @@ import pika
 import time
 
 import cpf_validator
-import database as DB
+from database import Database
 
 logging.basicConfig(level=logging.ERROR)
 
 def callback_rabbitmq(ch, method, properties, cpf):
     validator = cpf_validator.ValidatorA()
     result = validator.verify(cpf)
-    DB.record(cpf, result)
+    db = Database()
+    db.record(cpf, result)
     logging.error(f'{cpf}: {result}')
 
 
@@ -28,8 +29,6 @@ def test_receiver_rabbitmq():
     )
     logging.info('esperando na fila por mensagem.')
     channel.start_consuming()
-
-
 
 
 def main():
