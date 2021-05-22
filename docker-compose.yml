@@ -41,9 +41,11 @@ services:
             - grid
         env_file:
             - mongodb.env
-        command: ["python3", "-B", "main.py"]
         volumes:
-            - "./publisherapp/main.py:/main.py"
+            - "./publisherapp/:/app"
+            - "./modules_py/rabbitmq:/rabbitmq"
+        working_dir: /
+        command: ["python3", "-B", "/app/main.py"]
 
     botapp:
         image: botapp
@@ -60,8 +62,9 @@ services:
             - mongodb.env
         volumes:
             - "./botapp:/app"
-        working_dir: /app
-        command: ["python3", "-B", "main.py"]
+            - "./modules_py/rabbitmq:/rabbitmq"
+        working_dir: /
+        command: ["python3", "-B", "/app/main.py"]
 
 networks:
     grid:

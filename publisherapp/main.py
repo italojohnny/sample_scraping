@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 import logging
-import pika
 import pymongo
 import time
 import random
 import string
 import os
+import sys
+
+sys.path.insert(0, '..')
+from rabbitmq.publisher import Publisher
 
 logging.basicConfig(level=logging.INFO)
 
@@ -33,41 +36,30 @@ def find(number):
     return False
 
 
-def test_send_message(number):
-    try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-        channel = connection.channel()
-
-        channel.queue_declare(queue='hello')
-        channel.basic_publish(
-            exchange='',
-            routing_key='hello',
-            body=number
-        )
-        connection.close()
-    except:
-        logging.exception("Falha ao tentar se conectar a fila de mensagem")
-
 def main():
     time.sleep(5)
-    try:
-        logging.info('iniciando aplicacao')
-        while True:
-            number = get_number()
+    logging.info('iniciando aplicacao')
 
+    while True:
+        time.sleep(10)
+        number = get_number()
+        publisher = Publisher()
+        try:
             if not find(number):
-                test_send_message(number)
+                publisher.username = 'guest'
+                publisher.password = 'guest'
+                publisher.exchange = 'hello'
+                publisher.virtual_host = '/'
+                publisher.host = 'rabbitmq'
+                publisher.port = 5672
+                publisher.send(number)
+                logging.info(f'CPF registrado para consulta {number}')
 
             else:
                 logging.info('CPF ja verificado')
 
-            time.sleep(10)
-
-    except:
-        logging.exception("Uma falha inesperada ocorreu")
-
-    finally:
-        logging.info('encerrando aplicacao')
+        except:
+            logging.exception("Uma falha inesperada ocorreu")
 
 
 if __name__ == '__main__':

@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 import logging
-import pika
 import time
+import sys
 
+sys.path.insert(0, '..')
+from rabbitmq.consumer import Consumer
 import cpf_validator
 from database import Database
 
 logging.basicConfig(level=logging.INFO)
 
-def callback_rabbitmq(ch, method, properties, cpf):
+
+def callback_rabbitmq(channel, method, properties, cpf):
     """
     Permite escalar facilmente novos metodos de validacao de cpf em novos sites.
     Assim como, alternar entre os metodos dependendo da regra de negocio
@@ -25,27 +28,28 @@ def callback_rabbitmq(ch, method, properties, cpf):
     logging.info(f'{cpf}: {result}')
 
 
-def test_receiver_rabbitmq():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-    channel = connection.channel()
-
-    channel.queue_declare(queue='hello')
-    channel.basic_consume(
-        queue='hello',
-        auto_ack=True,
-        on_message_callback=callback_rabbitmq
-    )
-    logging.info('esperando na fila por mensagem.')
-    channel.start_consuming()
+    channel.basic_ack(delivery_tag=method.delivery_tag)
 
 
 def main():
-    time.sleep(5)
+
     try:
+        time.sleep(60)
         logging.info('iniciando aplicacao')
-        while True:
-            time.sleep(5)
-            test_receiver_rabbitmq()
+
+        rabbitmq = Consumer(
+            username='guest'
+            password='guest'
+            queue='hello'
+            exchange='hello'
+            virtual_host='/'
+            host='rabbitmq'
+            port=5672
+            callback=callback_rabbitmq
+        )
+        rabbitmq.config()
+        rabbitmq.start()
+        logging.error('Fim do loop')
 
     except:
         logging.exception("Uma falha inesperada ocorreu")
